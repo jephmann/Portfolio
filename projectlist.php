@@ -5,6 +5,6 @@
             <div class="data"><?php echo $table; ?></div>
             <?php echo $noprojects; ?>
             <br />
-            <?php echo anchor('project1/add/','Add New Project',array('class'=>'add')); ?>
+            <?php echo anchor('project/add/','Add New Project',array('class'=>'add')); ?>
         </div>
         
