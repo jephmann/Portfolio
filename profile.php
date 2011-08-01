@@ -46,10 +46,17 @@ class Profile extends CI_Controller {
         // get profile details
         $idprofile = $this->session->userdata('idprofile');
         $data['profile'] = $this->Profile_model->get_by_id($idprofile)->row();
-        // $this->load->view('profileread1',$data);
+        // set header message
+        $currentheadermessage=$this->session->userdata('headermessage');
+        $headermessage='<span class="success">Welcome!</span>';
+        if ($currentheadermessage == '' | $currentheadermessage == null || strlen(trim($currentheadermessage)) == 0){
+            $this->session->set_userdata('headermessage',$headermessage);
+        } else {
+            $this->session->set_userdata('headermessage',$currentheadermessage);                
+        }
         $this->load->view('header');
             
-            
+            // BRING ON THE PROJECT LIST!
             // offset
             $uri_segment = 3;
             $offset = $this->uri->segment($uri_segment);
@@ -92,14 +99,16 @@ class Profile extends CI_Controller {
             }
             $data['title']='Your Projects';
             // load view
-            $this->load->view('projectlist',$data);            
+            $this->load->view('projectlist',$data);
+            // END PROJECT LIST
         }
         // load last view
         $this->load->view('foot',$data);
     }
     
-    function profileAdd(){            
-        // prefill form values from posted data before updating
+    function profileAdd(){
+        $this->session->set_userdata('headermessage','');
+        // prefill form values with blanks
         $this->form_validation->namefirst=('');
         $this->form_validation->namelast=('');
         $this->form_validation->urllinkedin=('');
@@ -112,17 +121,23 @@ class Profile extends CI_Controller {
         $data['link_back']=anchor('profile/index','HOME',array('class'=>'back'));
         // load view
         $this->load->view('head',$data);
-        $this->load->view('profileadd',$data);
+        $this->load->view('profileform',$data);
         $this->load->view('foot',$data);
     }
     function addProfile(){
-        $username = $this->session->userdata('username');            
+        $username = $this->session->userdata('username');
+        // posted values
+        $post_namefirst=$this->input->post('namefirst');
+        $post_namelast=$this->input->post('namelast');
+        $post_urllinkedin=$this->input->post('urllinkedin');
+        $post_contactemail=$this->input->post('contactemail');
+        $post_contactmessage=$this->input->post('contactmessage');
         // prefill form values from posted data before updating
-        $this->form_validation->namefirst=$this->input->post('namefirst');
-        $this->form_validation->namelast=$this->input->post('namelast');
-        $this->form_validation->urllinkedin=$this->input->post('urllinkedin');
-        $this->form_validation->contactemail=$this->input->post('contactemail');
-        $this->form_validation->contactmessage=$this->input->post('contactmessage');
+        $this->form_validation->namefirst=$post_namefirst;
+        $this->form_validation->namelast=$post_namelast;
+        $this->form_validation->urllinkedin=$post_urllinkedin;
+        $this->form_validation->contactemail=$post_contactemail;
+        $this->form_validation->contactmessage=$post_contactmessage;
         // set common properties
         $data['title']='Add New Profile';
         $data['action']=site_url('profile/addprofile');
@@ -131,51 +146,62 @@ class Profile extends CI_Controller {
         $this->form_validation->set_rules('namelast','Last Name','required');
         $this->form_validation->set_rules('contactemail','E-Mail Address for the Contact Form','valid_email');
         $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+        // load first view
+        $this->load->view('head',$data);
         // run validation
         if ($this->form_validation->run() == FALSE){
-            // $data['message']=validation_errors();
             $data['message']='Not so fast! Check for missing data below.';
+            $this->load->view('head',$data);
+            $this->load->view('profileform',$data);
+            $this->load->view('foot',$data);
         }else{
-            // save data
+            // save data and retrieve new id
             $profile=array('username' => $username,
-                'namefirst' => $this->input->post('namefirst'),
-                'namelast' => $this->input->post('namelast'),
-                'urllinkedin' => $this->input->post('urllinkedin'),
-                'contactemail' => $this->input->post('contactemail'),
-                'contactmessage' => $this->input->post('contactmessage'));
+                'namefirst' => $post_namefirst,
+                'namelast' => $post_namelast,
+                'urllinkedin' => $post_urllinkedin,
+                'contactemail' => $post_contactemail,
+                'contactmessage' => $post_contactmessage);
             $idprofile = $this->Profile_model->save($profile);
-            // RESET THE SESSION VARIABLE FOR IDPROFILE
-            $this->session->set_userdata('idprofile',$idprofile);
-            $idprofile=$this->session->userdata('idprofile');                
-            // set form input name "idprofile"
-            // [* this does not seem to work *]
-            // [and since I don't want the users to see the Add form again anyway, why should it?]
+            // retrieve updated data
             $profile = $this->Profile_model->get_by_id($idprofile)->row();
-            $this->form_validation->namefirst=$profile->namefirst;
-            $this->form_validation->namelast=$profile->namelast;
-            $this->form_validation->urllinkedin=$profile->urllinkedin;
-            $this->form_validation->contactemail=$profile->contactemail;
-            $this->form_validation->contactmessage=$profile->contactmessage;
-            // set user message
-            $data['message']='<div class="success">New Profile Added: '.$idprofile.'!</div>';            
-        }            
-        // load view
-        $this->load->view('head',$data);
-        $this->load->view('profileadd',$data);
-        $this->load->view('foot',$data);
-        // what i would rather do if no errors:
-        // redirect('profile/index/','refresh');            
+            $db_idprofile=$profile->idprofile;
+            $db_namefirst=$profile->namefirst;
+            $db_namelast=$profile->namelast;
+            $db_urllinkedin=$profile->urllinkedin;
+            $db_contactemail=$profile->contactemail;
+            $db_contactmessage=$profile->contactmessage;
+            // Session-variable updates for the id and header from updated database
+            $this->session->set_userdata('idprofile',$db_idprofile);
+            $this->session->set_userdata('profilenamefirst',$db_namefirst);
+            $this->session->set_userdata('profilenamelast',$db_namelast);
+            $this->session->set_userdata('urllinkedin',$db_urllinkedin);
+            $this->session->set_userdata('contactemail',$db_contactemail);
+            $this->session->set_userdata('contactmessage',$db_contactmessage);
+            // set header message
+            $headermessage='<span class="success">You are now in the system. <em>Welcome aboard!</em></span>';
+            $this->session->set_userdata('headermessage',$headermessage);
+            // redirect to project list page
+            redirect('profile/index/','refresh');
+        }
     }
     
-    function profileUpdate(){            
-        // prefill form values from database before updating
-        $profile = $this->Profile_model->get_by_id($this->session->userdata('idprofile'))->row();
-        $this->form_validation->idprofile=$profile->idprofile;
-        $this->form_validation->namefirst=$profile->namefirst;
-        $this->form_validation->namelast=$profile->namelast;
-        $this->form_validation->urllinkedin=$profile->urllinkedin;
-        $this->form_validation->contactemail=$profile->contactemail;
-        $this->form_validation->contactmessage=$profile->contactmessage;
+    function profileUpdate(){
+        $this->session->set_userdata('headermessage','');
+        $idprofile=$this->session->userdata('idprofile');
+        // retrieve current data
+        $profile = $this->Profile_model->get_by_id($idprofile)->row();
+        $db_namefirst=$profile->namefirst;
+        $db_namelast=$profile->namelast;
+        $db_urllinkedin=$profile->urllinkedin;
+        $db_contactemail=$profile->contactemail;
+        $db_contactmessage=$profile->contactmessage;   
+        // prefill form values from database
+        $this->form_validation->namefirst=$db_namefirst;
+        $this->form_validation->namelast=$db_namelast;
+        $this->form_validation->urllinkedin=$db_urllinkedin;
+        $this->form_validation->contactemail=$db_contactemail;
+        $this->form_validation->contactmessage=$db_contactmessage;
         // set common properties
         $data['title'] = 'Update Profile';
         $data['message'] = '';
@@ -183,17 +209,24 @@ class Profile extends CI_Controller {
         $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));            
         // load view
         $this->load->view('head',$data);
-        $this->load->view('profileupdate', $data);
+        $this->load->view('profileform', $data);
         $this->load->view('foot',$data);           
     }
-    function updateProfile(){            
+    function updateProfile(){
+        $username = $this->session->userdata('username');
+        $idprofile=$this->session->userdata('idprofile');
+        // posted values
+        $post_namefirst=$this->input->post('namefirst');
+        $post_namelast=$this->input->post('namelast');
+        $post_urllinkedin=$this->input->post('urllinkedin');
+        $post_contactemail=$this->input->post('contactemail');
+        $post_contactmessage=$this->input->post('contactmessage');
         // prefill form values from posted data before updating
-        $this->form_validation->idprofile=$this->session->userdata('idprofile');
-        $this->form_validation->namefirst=$this->input->post('namefirst');
-        $this->form_validation->namelast=$this->input->post('namelast');
-        $this->form_validation->urllinkedin=$this->input->post('urllinkedin');
-        $this->form_validation->contactemail=$this->input->post('contactemail');
-        $this->form_validation->contactmessage=$this->input->post('contactmessage');
+        $this->form_validation->namefirst=$post_namefirst;
+        $this->form_validation->namelast=$post_namelast;
+        $this->form_validation->urllinkedin=$post_urllinkedin;
+        $this->form_validation->contactemail=$post_contactemail;
+        $this->form_validation->contactmessage=$post_contactmessage;
         // set common properties
         $data['title'] = 'Update Profile';
         $data['action'] = site_url('profile/updateprofile');
@@ -202,38 +235,44 @@ class Profile extends CI_Controller {
         $this->form_validation->set_rules('namelast','Last Name','required');
         $this->form_validation->set_rules('contactemail','E-Mail Address for the Contact Form','valid_email');
         $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+        // load first view
+        $this->load->view('head',$data);
         // run validation
         if ($this->form_validation->run() == FALSE){
             $data['message']='Not so fast! Check for missing data below.';
+            $this->load->view('head',$data);
+            $this->load->view('profileform',$data);
+            $this->load->view('foot',$data);
         }else{
             // save data
-            $idprofile = $this->session->userdata('idprofile');
-            $profile=array('username' => $this->session->userdata('username'),
-              'namefirst' => $this->input->post('namefirst'),
-              'namelast' => $this->input->post('namelast'),
-              'urllinkedin' => $this->input->post('urllinkedin'),
-              'contactemail' => $this->input->post('contactemail'),
-              'contactmessage' => $this->input->post('contactmessage'));
+            $profile=array('username' => $username,
+                'namefirst' => $post_namefirst,
+                'namelast' => $post_namelast,
+                'urllinkedin' => $post_urllinkedin,
+                'contactemail' => $post_contactemail,
+                'contactmessage' => $post_contactmessage);
             $this->Profile_model->update($idprofile,$profile);
-            // set user message
-            $data['message'] = '<div class="success">Profile '.$idprofile.' Updated!</div>';
-            // prefill form values with updated data (same as before but placed after the update)
+            // retrieve updated data
             $profile = $this->Profile_model->get_by_id($idprofile)->row();
-            $this->form_validation->idprofile=$profile->idprofile;
-            $this->form_validation->namefirst=$profile->namefirst;
-            $this->form_validation->namelast=$profile->namelast;
-            $this->form_validation->urllinkedin=$profile->urllinkedin;
-            $this->form_validation->contactemail=$profile->contactemail;
-            $this->form_validation->contactmessage=$profile->contactmessage;
-
-            }
-        // load view
-        $this->load->view('head',$data);
-        $this->load->view('header');
-        $this->load->view('profileupdate', $data);
-        $this->load->view('foot',$data);
-        // what i would rather do if no errors:
-        //redirect('profile/index/','refresh');                              
+            $db_idprofile=$profile->idprofile;
+            $db_namefirst=$profile->namefirst;
+            $db_namelast=$profile->namelast;
+            $db_urllinkedin=$profile->urllinkedin;
+            $db_contactemail=$profile->contactemail;
+            $db_contactmessage=$profile->contactmessage;
+            // Session-variable updates for the id and header from updated database
+            $this->session->set_userdata('idprofile',$db_idprofile);
+            $this->session->set_userdata('profilenamefirst',$db_namefirst);
+            $this->session->set_userdata('profilenamelast',$db_namelast);
+            $this->session->set_userdata('urllinkedin',$db_urllinkedin);
+            $this->session->set_userdata('contactemail',$db_contactemail);
+            $this->session->set_userdata('contactmessage',$db_contactmessage);
+            // set header message
+            $headermessage='<span class="success">Profile Updated!</span>';
+            $this->session->set_userdata('headermessage',$headermessage);
+            // redirect to project list page
+            redirect('profile/index/','refresh');
+        }
     }
 
     function resumeUpdate(){
@@ -262,20 +301,22 @@ class Profile extends CI_Controller {
         $this->load->library('upload', $config);
         if ( ! $this->upload->do_upload('fileresume')){
             $data['message'] = $this->upload->display_errors();
-            $resume_filename='';            
+            $resume_filename='';
+            $this->load->view('head',$data);
+            $this->load->view('header');
+            $this->load->view('resume', $data);
+            $this->load->view('foot',$data);            
         }else{
             $resume_data = $this->upload->data();
-            $resume_filename = $resume_data['file_name'];
+            $fileresume = $resume_data['file_name'];
             $idprofile = $this->session->userdata('idprofile');
-            $profile=array('fileresume' => $resume_filename);
+            $profile=array('fileresume' => $fileresume);
             $this->Profile_model->update($idprofile,$profile);
-            $data['message'] = '<div class="success">Resume Updated!</div>';
-        }            
-        // load view
-        $this->load->view('head',$data);
-        $this->load->view('header');
-        $this->load->view('resume', $data);
-        $this->load->view('foot',$data);        
+            $this->session->set_userdata('fileresume',$fileresume);
+            $headermessage='<span class="success">Resume Updated!</span>';
+            $this->session->set_userdata('headermessage',$headermessage);
+            redirect('profile/index/','refresh');
+        }
     }       
     
 }
