@@ -9,5 +9,5 @@
             <h2>WELCOME TO THE PORTFOLIO OF <?=$this->session->userdata('profilenamefirst').'&nbsp;'.$this->session->userdata('profilenamelast'); ?></h2>
         </div>
     </div>
-    <br /><?=anchor('profile/profileupdate/', 'Update Your Profile',array('class'=>'update')); ?> | <?=anchor('profile/resumeupdate/', 'Update Your Resume',array('class'=>'update')); ?>
+    <br /><?=anchor('profile/profileupdate/', 'Update Your Profile',array('class'=>'update')); ?> | <?=anchor('profile/resumeupdate/', 'Update Your Resume',array('class'=>'update')); ?> | <?=$this->session->userdata('headermessage'); ?>
 </div>
