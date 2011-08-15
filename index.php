@@ -1,13 +1,8 @@
 <?php
+    include('config/db.php');
 
     // detect browser for mobile
-
     $username = ('PMS');    // change to a different source
-    $host = "localhost";    // would this be the same on diamond.sat?
-    $un = "cctclass";       // likely different on diamond.sat
-    $pw = 'cct1232011';     // likely different on diamond.sat
-    $db = "pmdb";           // might be different on diamond.sat    
-
     // PROFILE
     $connection=mysqli_connect($host,$un,$pw,$db) or die ('Unable to connect!');
     $query=('SELECT * FROM profile WHERE profile.username = \''.$username.'\'');
@@ -53,7 +48,7 @@
     if($contactemail==''){
         $contactme='';
     }
-    $linkedin='<a target="_blank" href="'.$urllinkedin.'"><img src="cms/imgs/LinkedIn_Logo16px.png"/></a>';
+    $linkedin='<a target="_blank" href="'.$urllinkedin.'"><img src="images/LinkedIn_Logo16px.png"/></a>';
     if($urllinkedin==''){
         $linkedin='';
     }
@@ -73,62 +68,68 @@
         if (mysqli_num_rows($result) > 0) {
             while($row = mysqli_fetch_array($result)) {
                 $screen = $screen+1;
-                $projecttitle=$row['title'];
-                if($projecttitle=='' || $projecttitle==null){
+                $projecttitle=trim($row['title']);
+                if($projecttitle=='' || $projecttitle==null || strlen($projecttitle)==0){
                     $projecttitle='[Title of Project]';                    
                 }
-                $projectdescription=$row['description'];
-                if($projectdescription=='' || $projectdescription==null){
+                $projectdescription=trim($row['description']);
+                if($projectdescription=='' || $projectdescription==null || strlen($projectdescription)==0){
                     $projectdescription='[Write a brief single paragraph describing the Project at hand.
                         For example, you might include some basic information
                         about how your project was done
                         and/or the client for whom you created it.]';                    
                 }
-                $urlwork=$row['ulrwork'];
+                $urlwork=trim($row['ulrwork']);
                 $visitwork='<a target="_blank" href="'.$urlwork.'">Visit Work</a>';
-                if($urlwork=='' || $urlwork==null){
+                if($urlwork=='' || $urlwork==null || strlen($urlwork)==0){
                     $visitwork='';
                 }
-                $imgleft=$row['imgleft'];
-                if($imgleft=='' || $imgleft==null){
-                    $imgleft='1_big.jpg';                    
+                $imgleft=trim($row['imgleft']);
+                if($imgleft=='' || $imgleft==null || strlen($imgleft)==0){
+                    $imgleft='images/1_big.jpg';                    
+                }else{
+                    $imgleft='cms/imgs/'.$imgleft;                    
                 }
                 $altleft=$row['altleft'];
                 if($altleft==''){$altleft='Main Project Image';}
                 $imgrighttop=$row['imgrighttop'];
-                if($imgrighttop=='' || $imgrighttop==null){
-                    $imgrighttop='1a_small.jpg';                    
-                    }
+                if($imgrighttop=='' || $imgrighttop==null || strlen($imgrighttop)==0){
+                    $imgrighttop='images/1a_small.jpg';                    
+                }else{
+                    $imgrighttop='cms/imgs/'.$imgrighttop;                    
+                }
                 $altrighttop=$row['altrighttop'];
-                if($altrighttop==''){$altrighttop='Project Image Top';}
+                if($altrighttop==''){$altrighttop='Project Image, Right-Top';}
                 $imgrightbottom=$row['imgrightbottom'];
-                if($imgrightbottom=='' || $imgrightbottom==null){
-                    $imgrightbottom='1b_small.jpg';                    
-                    }
+                if($imgrightbottom=='' || $imgrightbottom==null || strlen($imgrightbottom)==0){
+                    $imgrightbottom='images/1b_small.jpg';                   
+                }else{
+                    $imgrightbottom='cms/imgs/'.$imgrightbottom;                    
+                }
                 $altrightbottom=$row['altrightbottom'];
-                if($altrightbottom==''){$altrightbottom='Project Image Top';}
+                if($altrightbottom==''){$altrightbottom='Project Image, Right-Bottom';}
                 // PROJECT COVERAGE
                 // THE PROJECT STRING
                 $projects.='<div class="box">
-                                <div class="top">
-                                    <div class="left">
-                                        <img src="cms/imgs/'.$imgleft.'" alt="'.$altleft.'" title="'.$altleft.'">
-                                    </div>
-                                    <div class="right">
-                                        <div class="top">
-                                            <img src="cms/imgs/'.$imgrighttop.'" alt="'.$altrighttop.'" title="'.$altrighttop.'">
-                                        </div>
-                                        <div class="bottom">
-                                            <img src="cms/imgs/'.$imgrightbottom.'" alt="'.$altrightbottom.'" title="'.$altrightbottom.'">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bottom">
-                                    <h2>Screen '.$screen.'<span>'.$projecttitle.'</span></h2>
-                                    <p>'.$projectdescription.'</p>'
-                                    .$visitwork.
-                                '</div>
-                            </div>';
+                    <div class="top">
+                        <div class="left">
+                            <img width="471" height="276"src="'.$imgleft.'" alt="'.$altleft.'" title="'.$altleft.'">
+                        </div>
+                        <div class="right">
+                            <div class="top">
+                                <img width="223" height="131" src="'.$imgrighttop.'" alt="'.$altrighttop.'" title="'.$altrighttop.'">
+                            </div>
+                            <div class="bottom">
+                                <img width="223" height="131" src="'.$imgrightbottom.'" alt="'.$altrightbottom.'" title="'.$altrightbottom.'">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <h2>Screen '.$screen.'<span>'.$projecttitle.'</span></h2>
+                        <p>'.$projectdescription.'</p>'
+                        .$visitwork.
+                    '</div>
+                </div>';
             }
         }
             else
@@ -138,14 +139,14 @@
                 $projects='<div class="box">
                                 <div class="top">
                                     <div class="left">
-                                        <img src="cms/imgs/1_big.jpg" alt="Main Project Image">
+                                        <img src="images/1_big.jpg" alt="Main Project Image">
                                     </div>
                                     <div class="right">
                                         <div class="top">
-                                            <img src="cms/imgs/1a_small.jpg" alt="Project Image Top">
+                                            <img src="images/1a_small.jpg" alt="Project Image, Right Top">
                                         </div>
                                         <div class="bottom">
-                                            <img src="cms/imgs/1b_small.jpg" alt="Project Image Bottom">
+                                            <img src="images/1b_small.jpg" alt="Project Image, Right Bottom">
                                         </div>
                                     </div>
                                 </div>
@@ -172,13 +173,12 @@
         <script src="js/extrajs.js" type="text/javascript" charset="utf-8"></script>
     </head>
     <body>
-        <!-- omit from cms version -->
         <div id="contactback">
             <div id="contacttop">
                 <a href="#" class="exit"></a>
                 <h2>CONTACT ME</h2>
                 <p><?=$contactmessage ?></p>
-                <form action="./contact.php" method="post" id="contactform">
+                <form action="./contact.php?nf=<?=$namefirst ?>&nl=<?=$namelast ?>&em=<?=$contactemail ?>" method="post" id="contactform">
                     <div class="line">
                         <div class="input_caption">Name</div>
                         <input class="input" type="text" name="name">
@@ -186,10 +186,6 @@
                     <div class="line">
                         <div class="input_caption">Email Address</div>
                         <input class="input" type="text" name="email">
-                    </div>
-                    <div class="line">
-                        <div class="input_caption">Current Website</div>
-                        <input class="input" type="text" name="website">
                     </div>
                     <div class="line">
                         <div class="input_caption">Message</div>
@@ -201,19 +197,16 @@
 		</form>
             </div>
         </div>
-        <!-- end omit-->
         <div class="page">
-            <!-- variations on header would be included in cms -->
             <div id="header">
                 <div class="left">
-                    <h1><a href="./index.html"><?=$namefirst ?><span><?=$namelast ?></span></a></h1>
+                    <h1><a href="./index.php"><?=$namefirst ?><span><?=$namelast ?></span></a></h1>
                     <?=$linkedin ?>&nbsp;<?=$resume ?>
                 </div>
                 <div class="right">
                     <h2>WELCOME TO THE PORTFOLIO OF <?=$namefull ?></h2>
                 </div>
             </div>
-            <!-- in cms, replace portfoliowrap and contactme with tables and forms -->
             <div id="portfoliowrap">
                 <div id="portfolio">
                     <?=$projects ?>
