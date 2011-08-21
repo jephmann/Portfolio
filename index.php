@@ -1,8 +1,22 @@
 <?php
-    include('config/db.php');
-
     // detect browser for mobile
-    $username = ('PMS');    // change to a different source
+    include('config/db.php');    
+
+    $filepath = dirname(__FILE__);
+    $path_parts = pathinfo($filepath);
+    $dirname = $path_parts['dirname'];
+    $basename = $path_parts['basename'];
+    $extension = $path_parts['extension'];
+    $filename = $path_parts['filename'];    
+    /*
+     * Yes I want the username part of the filepath;
+     * it's either that or we config a textfile for each portfolio.
+     * Do I really want basename and/or filename for the username?
+     * What is the difference between them?
+     */
+    // $username = ('PMS');    // change to a different source
+    $username = ($basename);
+    
     // PROFILE
     $connection=mysqli_connect($host,$un,$pw,$db) or die ('Unable to connect!');
     $query=('SELECT * FROM profile WHERE profile.username = \''.$username.'\'');
