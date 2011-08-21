@@ -1,6 +1,5 @@
 <?php
     class Profile_model extends CI_Model {
-        // remove this function if unnecessary
         function __construct() {
             parent::__construct();
         }
@@ -8,18 +7,17 @@
         // table name
         private $tbl_profile = 'profile';
 
-        // count profile records
+        // count profile records by username
         function count_all() {
             $username = $this->session->userdata('username');
             $this->db->where('username', $username);
             return $this->db->count_all($this->tbl_profile);
-        }    
-        // paginate profile records
-        function get_paged_list($limit = 10, $offset = 0){
-            $username = $this->session->userdata('username');
+        }
+        // get profile by USERNAME (my add)
+        function get_by_username($username){
+            // $idprofile = $this->session->userdata('idprofile');
             $this->db->where('username', $username);
-            $this->db->order_by('idprofile','desc');
-            return $this->db->get($this->tbl_profile, $limit, $offset);
+            return $this->db->get($this->tbl_profile);
         }        
         // get profile by id
         function get_by_id($idprofile){
