@@ -1,107 +1,114 @@
 <?php
+    if ( ! defined('BASEPATH')) exit('No direct script access allowed');
     class Profile extends CI_Controller {
         public function __construct() {
             parent::__construct();
             $this->load->library(array('table','form_validation'));
             $this->load->helper(array('form','url'));
             $this->load->model('Profile_model','',TRUE);
-            $this->load->model('Project_model','',TRUE);            
-            // TEST USERNAME (UNTIL LOGIN)
-            $username = 'PMS';
-            $this->session->set_userdata('username',$username);        
+            $this->load->model('Project_model','',TRUE); 
         }
-        private $limit = 10;
+        private $limit = 5;
         function index($offset = 0){
-            // offset
-            $uri_segment = 3;
-            $offset = $this->uri->segment($uri_segment);
-            // load data
-            $profiles = $this->Profile_model->get_paged_list($this->limit, $offset)->result();
-            $n=0;
-            foreach ($profiles as $profile){                
-                // RESET THE SESSION VARIABLE FOR IDPROFILE
-                // THERE SHOULD BE ONLY ONE IN THE QUERY PER UNIQUE USERNAME
-                // While we are at it, create other session profile variables for the header view
-                $this->session->set_userdata('idprofile',$profile->idprofile);
-                $this->session->set_userdata('profilenamefirst',$profile->namefirst);
-                $this->session->set_userdata('profilenamelast',$profile->namelast);
-                $this->session->set_userdata('urllinkedin',$profile->urllinkedin);
-                $this->session->set_userdata('fileresume',$profile->fileresume);
-                $this->session->set_userdata('contactemail',$profile->contactemail);
-                $n=$n+1;
-            }
-            // load first view
-            $data['title'] = 'HOME';
-            $data['morecss']='<link href="'.base_url().'css/projects.css" media="screen" rel="stylesheet" type="text/css" />';
-            $this->load->view('head',$data);            
-            if($n == null || $n == 0){                
-                // RESET THE SESSION VARIABLE FOR IDPROFILE TO ZERO
-                $this->session->set_userdata('idprofile',0);
-                $this->load->view('profilenone',$data);
-            }else{
-
-            // set common properties
-            $data['link_back'] = anchor('profile/profileupdate/', 'Update Your Profile',array('class'=>'update'));
-            $data['link_back2'] = anchor('profile/resumeupdate/', 'Update Your Resume',array('class'=>'update'));
-            // get profile details
-            $idprofile = $this->session->userdata('idprofile');
-            $data['profile'] = $this->Profile_model->get_by_id($idprofile)->row();
-            // set header message
-            $currentheadermessage=$this->session->userdata('headermessage');
-            $headermessage='<span class="success">Welcome!</span>';
-            if ($currentheadermessage == '' || $currentheadermessage == null || strlen(trim($currentheadermessage)) == 0){
-                $this->session->set_userdata('headermessage',$headermessage);
-            } else {
-                $this->session->set_userdata('headermessage',$currentheadermessage);                
-            }
-            $this->load->view('header');
-
-                // BRING ON THE PROJECT LIST!
-                // offset
-                $uri_segment = 3;
-                $offset = $this->uri->segment($uri_segment);
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
                 // load data
-                $projects = $this->Project_model->get_paged_list($this->limit, $offset)->result();
-                // generate pagination
-                $this->load->library('pagination');
-                // $config['base_url'] = site_url('profile/index/');
-                $config['total_rows'] = $this->Project_model->count_all();
-                $config['per_page'] = $this->limit;
-                $config['uri_segment'] = $uri_segment;
-                $this->pagination->initialize($config);
-                $data['pagination'] = $this->pagination->create_links();
-                // generate table data
-                $this->load->library('table');
-                $this->table->set_empty("&nbsp;");
-                $this->table->set_heading('#','Project Title','Image Uploads','Actions');
-                $i = 0 + $offset;
-                $n=0;
-                foreach ($projects as $project){
-                    $n=$n+1;
-                    $this->table->add_row(++$i,
-                        $project->title,
-                        anchor('project/imageleftupdate/'.$project->idproject,'left',array('class'=>'update')).' '.
-                        anchor('project/imagerighttopupdate/'.$project->idproject,'right-top',array('class'=>'update')).' '.
-                        anchor('project/imagerightbottomupdate/'.$project->idproject,'right-bottom',array('class'=>'update')),
-                        anchor('project/view/'.$project->idproject,'view',array('class'=>'view')).' '.
-                        anchor('project/update/'.$project->idproject,'update',array('class'=>'update')).' '.
-                        anchor('project/delete/'.$project->idproject,'delete',array('class'=>'delete','onclick'=>"return confirm('Are you sure want to delete this project?')"))
-                    );
-                }            
-                if($n == null || $n == 0){                
-                    $data['noprojects']='<h3 style="text-align: center;">You have no Projects in the System.<br/>Would you like to add one?</h3>';
-                    $data['table']='';                
-                }else{
-                    $data['noprojects']='';
-                    $data['table'] = $this->table->generate();
+                $username=$this->session->userdata('username');
+                $profiles = $this->Profile_model->get_by_username($username)->result();
+                $x=0;
+                foreach ($profiles as $profile){                
+                    // RESET THE SESSION VARIABLE FOR IDPROFILE
+                    // THERE SHOULD BE ONLY ONE IN THE QUERY PER UNIQUE USERNAME
+                    // While we are at it, create other session profile variables for the header view
+                    $this->session->set_userdata('idprofile',$profile->idprofile);
+                    $this->session->set_userdata('profilenamefirst',$profile->namefirst);
+                    $this->session->set_userdata('profilenamelast',$profile->namelast);
+                    $this->session->set_userdata('urllinkedin',$profile->urllinkedin);
+                    $this->session->set_userdata('fileresume',$profile->fileresume);
+                    $this->session->set_userdata('contactemail',$profile->contactemail);
+                    $x=$x+1;
                 }
-                $data['title']='Your Projects';
-                // load view
-                $this->load->view('projectlist',$data);
-                // END PROJECT LIST
+                // load first view
+                $data['title'] = 'HOME';
+                $data['morecss']='<link href="'.base_url().'css/projects.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
+                $this->load->view('head',$data);            
+                if($x == null || $x == 0){                
+                    // RESET THE SESSION VARIABLE FOR IDPROFILE TO ZERO
+                    $this->session->set_userdata('idprofile',0);
+                    $this->load->view('profilenone',$data);
+                }else{
+
+                // set common properties
+                $data['link_back'] = anchor('profile/profileupdate/', 'Update Your Profile',array('class'=>'update'));
+                $data['link_back2'] = anchor('profile/resumeupdate/', 'Update Your Resume',array('class'=>'update'));
+                $data['link_back3'] = anchor('profile/logout/', 'Log Out',array('class'=>'back'));
+                // get profile details
+                $idprofile = $this->session->userdata('idprofile');
+                $data['profile'] = $this->Profile_model->get_by_id($idprofile)->row();
+                // set header message
+                $currentheadermessage=$this->session->userdata('headermessage');
+                $headermessage='<span class="success">Welcome!</span>';
+                if ($currentheadermessage == '' || $currentheadermessage == null || strlen(trim($currentheadermessage)) == 0){
+                    $this->session->set_userdata('headermessage',$headermessage);
+                } else {
+                    $this->session->set_userdata('headermessage',$currentheadermessage);                
+                }
+                $this->load->view('header');
+
+                    // BRING ON THE PROJECT LIST!
+                    // offset
+                    $uri_segment = 3;
+                    $offset = $this->uri->segment($uri_segment);
+                    // load data
+                    $projects = $this->Project_model->get_paged_list($this->limit, $offset)->result();
+                    // generate pagination
+                    $this->load->library('pagination');
+                    $config['base_url'] = site_url('profile/index/');
+                    $config['total_rows'] = $this->Project_model->count_all();
+                    $config['per_page'] = $this->limit;
+                    $config['uri_segment'] = $uri_segment;
+                    $this->pagination->initialize($config);
+                    $data['pagination'] = $this->pagination->create_links();
+                    // generate table data
+                    $this->load->library('table');
+                    $this->table->set_empty("&nbsp;");
+                    $this->table->set_heading('#','Project Title','Image Uploads','Actions');
+                    $i = 0 + $offset;
+                    $n=0;
+                    foreach ($projects as $project){
+                        $n=$n+1;
+                        $this->table->add_row(++$i,
+                            $project->title,
+                            anchor('project/imageleftupdate/'.$project->idproject,'left',array('class'=>'update')).' '.
+                            anchor('project/imagerighttopupdate/'.$project->idproject,'right-top',array('class'=>'update')).' '.
+                            anchor('project/imagerightbottomupdate/'.$project->idproject,'right-bottom',array('class'=>'update')),
+                            anchor('project/view/'.$project->idproject,'view',array('class'=>'view')).' '.
+                            anchor('project/update/'.$project->idproject,'update',array('class'=>'update')).' '.
+                            anchor('project/delete/'.$project->idproject,'delete',array('class'=>'delete','onclick'=>"return confirm('Are you sure want to delete this project?')"))
+                        );
+                    }            
+                    if($n == null || $n == 0){                
+                        $data['noprojects']='<h3 style="text-align: center;">You have no Projects in the System.<br/>Would you like to add one?</h3>';
+                        $data['table']='';                
+                    }else{
+                        $data['noprojects']='';
+                        $data['table'] = $this->table->generate();
+                    }
+                    $data['title']='Your Projects';
+                    // load view
+                    $this->load->view('projectlist',$data);
+                    // END PROJECT LIST
+                }
+                // load last view
+                $this->load->view('footer',$data);
+                $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
             }
-            // load last view
-            $this->load->view('foot',$data);
         }
 
         function profileAdd(){
@@ -117,9 +124,12 @@
             $data['message']='';
             $data['action']=site_url('profile/addprofile');
             $data['link_back']=anchor('profile/index','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('profileform',$data);
+            $this->load->view('footer',$data);
             $this->load->view('foot',$data);
         }
         function addProfile(){
@@ -146,9 +156,12 @@
                 $data['action']=site_url('profile/addprofile');
                 $data['link_back']=anchor('profile/index','HOME',array('class'=>'back'));
                 $data['message']='Not so fast! Check for missing data below.';
-                $data['morecss']='';
+                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
                 $this->load->view('head',$data);
                 $this->load->view('profileform',$data);
+                $this->load->view('footer',$data);
                 $this->load->view('foot',$data);
             }else{
                 // save data and retrieve new id
@@ -202,10 +215,14 @@
             $data['message'] = '';
             $data['action'] = site_url('profile/updateprofile');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
+            $this->load->view('header',$data);
             $this->load->view('profileform', $data);
-            $this->load->view('foot',$data);           
+            $this->load->view('footer',$data);
+            $this->load->view('foot',$data); 
         }
         function updateProfile(){
             $username = $this->session->userdata('username');
@@ -232,9 +249,13 @@
                 $data['action'] = site_url('profile/updateprofile');
                 $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
                 $data['message']='Not so fast! Check for missing data below.';
-                $data['morecss']='';
+                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
                 $this->load->view('head',$data);
+                $this->load->view('header',$data);
                 $this->load->view('profileform',$data);
+                $this->load->view('footer',$data);
                 $this->load->view('foot',$data);
             }else{
                 // save data
@@ -273,10 +294,13 @@
             $data['message'] = 'Add a new resume or replace the one you have';
             $data['action'] = site_url('profile/updateresume');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
             $this->load->view('resume', $data);
+            $this->load->view('footer',$data);
             $this->load->view('foot',$data);
         }    
         function updateResume(){
@@ -292,11 +316,14 @@
                 $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
                 $data['message'] = $this->upload->display_errors();
                 $resume_filename='';
-                $data['morecss']='';
+                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
                 $this->load->view('head',$data);
                 $this->load->view('header');
                 $this->load->view('resume', $data);
-                $this->load->view('foot',$data);            
+                $this->load->view('footer',$data);
+                $this->load->view('foot',$data);        
             }else{
                 $resume_data = $this->upload->data();
                 $fileresume = $resume_data['file_name'];
@@ -309,6 +336,11 @@
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');
             }
-        }       
+        }
+        function logout(){
+            $this->session->unset_userdata('logged_in');
+            session_destroy();
+            redirect('login','refresh');
+        }
     }
 ?>
