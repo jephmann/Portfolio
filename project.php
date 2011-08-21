@@ -1,14 +1,14 @@
 <?php
+    if ( ! defined('BASEPATH')) exit('No direct script access allowed');
     class Project extends CI_Controller {
         public function __construct() {
             parent::__construct();
             $this->load->library(array('table','form_validation'));
             $this->load->helper(array('form','url'));
             $this->load->model('Project_model','',TRUE); 
-        }
-        
+        }        
         // There is no index function.
-        // The project controller is "borrowing" what would have been the project index function.
+        // The profile controller is "borrowing" what would have been the project index function.
         
         function add(){
             $this->session->set_userdata('headermessage','');
@@ -22,10 +22,13 @@
             $data['message']='';
             $data['action']=site_url('project/addproject');
             $data['link_back']=anchor('profile/index','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
             $this->load->view('projectform',$data);
+            $this->load->view('footer',$data);
             $this->load->view('foot',$data);
         }
         function addProject(){
@@ -51,10 +54,13 @@
                 $data['action']=site_url('project/addproject');
                 $data['link_back']=anchor('profile/index','HOME',array('class'=>'back'));
                 $data['message']='';
-                $data['morecss']='';
+                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
                 $this->load->view('head',$data);
                 $this->load->view('header');
                 $this->load->view('projectform',$data);
+                $this->load->view('footer',$data);
                 $this->load->view('foot',$data);
             }else{
                 // save data
@@ -72,7 +78,8 @@
         
         function view($idproject){
             // set common properties
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/projectread.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $data['title'] = 'Project Details';
             $data['link_back'] = anchor('profile/index/', 'HOME',array('class'=>'back'));
             $data['link_back2'] = anchor('project/update/'.$idproject,'Update Project',array('class'=>'update'));
@@ -101,7 +108,8 @@
             $this->load->view('head',$data);
             $this->load->view('header');
             $this->load->view('projectread',$data);
-            $this->load->view('foot',$data);            
+            $this->load->view('footer',$data);
+            $this->load->view('foot',$data);    
         }
         
         function update($idproject){
@@ -122,11 +130,14 @@
             $data['message'] = '';
             $data['action'] = site_url('project/updateproject');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
             $this->load->view('projectform', $data);
-            $this->load->view('foot',$data);    
+            $this->load->view('footer',$data);
+            $this->load->view('foot',$data);
         }
         function updateProject(){
             $idprofile = $this->session->userdata('idprofile');
@@ -151,11 +162,14 @@
                 $data['action'] = site_url('project/updateproject');
                 $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
                 $data['message'] = 'Not so fast! Check for missing data below';
-                $data['morecss']='';
+                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
                 $this->load->view('head',$data);
                 $this->load->view('header');
                 $this->load->view('projectform', $data);
-                $this->load->view('foot',$data);                
+                $this->load->view('footer',$data);
+                $this->load->view('foot',$data);        
             }else{            
                 // save data
                 $idproject = $post_idproject;
@@ -177,202 +191,304 @@
             redirect('profile/index/','refresh');
         }        
         
-        function imageleftUpdate($idproject){            
+        function imageleftUpdate($idproject){
+            $w=471;
+            $h=276;
             // prefill form values with current data before updating
             $project = $this->Project_model->get_by_id($idproject)->row();
             $this->form_validation->idproject=$project->idproject;
-            $this->form_validation->alt=$project->altleft;            
+            $this->form_validation->img=$project->imgleft;
+            $this->form_validation->alt=$project->altleft;
             // set view data and load view
+            $imgdefault=$this->form_validation->img;
+            if(strlen(trim($imgdefault))==0){
+                $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+            }else{
+                $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+            }
             $whichimage='Left';
-            $data['title']='Update '.$whichimage.' Image';
+            $data['imgdefault'] = $imgdefault;
+            $data['altdefault'] = $this->form_validation->alt;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '471';
-            $data['height'] = '276';
-            $data['message'] = '';
+            $data['width'] = $w;
+            $data['height'] = $h;
+            $data['message'] = ('Select an Image');
             $data['action'] = site_url('project/updateimageleft');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
-            $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);
+            $this->load->view('imgupload');
+            $this->load->view('footer');
+            $this->load->view('foot');
         }    
         function updateImageleft(){
-            $whichimage='Left';
-            $data['title']='Update '.$whichimage.' Image';
+            $w=471;
+            $h=276;
+            $imgdefault=('');
+            $whichimage=('Left');
+            $data['imgdefault'] = $imgdefault;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '471';
-            $data['height'] = '276';
+            $data['width'] = $w;
+            $data['height'] = $h;
             $data['action'] = site_url('project/updateimageleft');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $post_image = $this->input->post('imqge');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
-            $config['upload_path'] = './imgs/';
-            $config['allowed_types'] = 'jpg|gif|png';
+            $config['upload_path'] = ('./imgs/');
+            $config['allowed_types'] = ('jpg|gif|png');
             $config['overwrite'] = TRUE;
-            $config['max_width'] = '471';
-            $config['max-height'] = '276';
+            $config['max_width'] = $w;
+            $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ( ! $this->upload->do_upload('image')){
                 $data['message'] = $this->upload->display_errors();
-                $image_filename='';
+                $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
-                $this->form_validation->alt=$post_alt;             
+                $this->form_validation->alt=$post_alt;
+                $data['altdefault'] = $this->form_validation->alt;
+                // keep original default image
+                $project = $this->Project_model->get_by_id($post_idproject)->row();
+                $this->form_validation->img=$project->imgleft;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
                 $image_filename = $image_data['file_name'];
                 $project=array('imgleft' => $image_filename, 'altleft' => $post_alt);
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
-                $data['message'] = '<div class="success">Image Updated!</div>';
+                $data['message'] = ('<div class="success">Image Updated!</div>');
                 $project = $this->Project_model->get_by_id($idproject)->row();
                 $this->form_validation->idproject=$project->idproject;
-                $this->form_validation->alt=$project->altleft; 
+                $this->form_validation->img=$project->imgleft;
+                $this->form_validation->alt=$project->altleft;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
+                $data['altdefault'] = $this->form_validation->alt; 
             }            
             // load view
             $this->load->view('head',$data);
             $this->load->view('header');
-            $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);        
+            $this->load->view('imgupload');
+            $this->load->view('footer');
+            $this->load->view('foot');
         }           
 
-        function imagerighttopUpdate($idproject){            
+        function imagerighttopUpdate($idproject){
+            $w=223;
+            $h=131;
             // prefill form values with current data before updating
             $project = $this->Project_model->get_by_id($idproject)->row();
             $this->form_validation->idproject=$project->idproject;
-            $this->form_validation->alt=$project->altrighttop;            
+            $this->form_validation->img=$project->imgrighttop;
+            $this->form_validation->alt=$project->altrighttop;
             // set view data and load view
+            $imgdefault=$this->form_validation->img;
+            if(strlen(trim($imgdefault))==0){
+                $imgdefault=str_replace('index.php/','',site_url('imgs/1a_small.jpg'));
+            }else{
+                $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+            }
             $whichimage='Right Top';
-            $data['title']='Update '.$whichimage.' Image';
+            $data['imgdefault'] = $imgdefault;
+            $data['altdefault'] = $this->form_validation->alt;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '223';
-            $data['height'] = '131';
-            $data['message'] = '';
+            $data['width'] = $w;
+            $data['height'] = $h;
+            $data['message'] = ('Select an Image');
             $data['action'] = site_url('project/updateimagerighttop');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
-            $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);
+            $this->load->view('imgupload');
+            $this->load->view('footer');
+            $this->load->view('foot');
         }    
         function updateImagerighttop(){
-            $whichimage='Right Top';
-            $data['title']='Update '.$whichimage.' Image';
+            $w=223;
+            $h=131;
+            $imgdefault=('');
+            $whichimage=('Right Top');
+            $data['imgdefault'] = $imgdefault;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '223';
-            $data['height'] = '131';
+            $data['width'] = $w;
+            $data['height'] = $h;
             $data['action'] = site_url('project/updateimagerighttop');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $post_image = $this->input->post('imqge');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
-            $config['upload_path'] = './imgs/';
-            $config['allowed_types'] = 'jpg|gif|png';
+            $config['upload_path'] = ('./imgs/');
+            $config['allowed_types'] = ('jpg|gif|png');
             $config['overwrite'] = TRUE;
-            $config['max_width'] = '223';
-            $config['max-height'] = '131';
+            $config['max_width'] = $w;
+            $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ( ! $this->upload->do_upload('image')){
                 $data['message'] = $this->upload->display_errors();
-                $image_filename='';
+                $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
-                $this->form_validation->alt=$post_alt;            
+                $this->form_validation->alt=$post_alt;
+                $data['altdefault'] = $this->form_validation->alt;
+                // keep original default image
+                $project = $this->Project_model->get_by_id($post_idproject)->row();
+                $this->form_validation->img=$project->imgrighttop;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
                 $image_filename = $image_data['file_name'];
                 $project=array('imgrighttop' => $image_filename, 'altrighttop' => $post_alt);
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
-                $data['message'] = '<div class="success">Image Updated!</div>';
+                $data['message'] = ('<div class="success">Image Updated!</div>');
                 $project = $this->Project_model->get_by_id($idproject)->row();
                 $this->form_validation->idproject=$project->idproject;
-                $this->form_validation->alt=$project->altrighttop; 
+                $this->form_validation->img=$project->imgrighttop;
+                $this->form_validation->alt=$project->altrighttop;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
+                $data['altdefault'] = $this->form_validation->alt; 
             }            
             // load view
             $this->load->view('head',$data);
             $this->load->view('header');
-            $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);        
+            $this->load->view('imgupload');
+            $this->load->view('footer');
+            $this->load->view('foot'); 
         }           
 
-        function imagerightbottomUpdate($idproject){            
+        function imagerightbottomUpdate($idproject){
+            $w=223;
+            $h=131;
             // prefill form values with current data before updating
             $project = $this->Project_model->get_by_id($idproject)->row();
             $this->form_validation->idproject=$project->idproject;
+            $this->form_validation->img=$project->imgrightbottom;  
             $this->form_validation->alt=$project->altrightbottom;            
             // set view data and load view
+            $imgdefault=$this->form_validation->img;
+            if(strlen(trim($imgdefault))==0){
+                $imgdefault=str_replace('index.php/','',site_url('imgs/1b_small.jpg'));
+            }else{
+                $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+            }
             $whichimage='Right Bottom';
-            $data['title']='Update '.$whichimage.' Image';
+            $data['imgdefault'] = $imgdefault;
+            $data['altdefault'] = $this->form_validation->alt;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '223';
-            $data['height'] = '131';
-            $data['message'] = '';
+            $data['width'] = $w;
+            $data['height'] = $h;
+            $data['message'] = ('Select an Image');
             $data['action'] = site_url('project/updateimagerightbottom');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $this->load->view('head',$data);
             $this->load->view('header');
-            $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);
+            $this->load->view('imgupload');
+            $this->load->view('footer');
+            $this->load->view('foot');
         }    
         function updateImagerightbottom(){
-            $whichimage='Right Bottom';
-            $data['title']='Update '.$whichimage.' Image';
+            $w=223;
+            $h=131;
+            $imgdefault=('');
+            $whichimage=('Right Bottom');
+            $data['imgdefault'] = $imgdefault;
+            $data['title']=($whichimage.' Image');
             $data['whichimage'] = $whichimage;
-            $data['width'] = '223';
-            $data['height'] = '131';
+            $data['width'] = $w;
+            $data['height'] = $h;
             $data['action'] = site_url('project/updateimagerightbottom');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='';
+            $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['jsstuff']=('');
             $post_image = $this->input->post('imqge');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
-            $config['upload_path'] = './imgs/';
-            $config['allowed_types'] = 'jpg|gif|png';
+            $config['upload_path'] = ('./imgs/');
+            $config['allowed_types'] = ('jpg|gif|png');
             $config['overwrite'] = TRUE;
-            $config['max_width'] = '223';
-            $config['max-height'] = '131';
+            $config['max_width'] = $w;
+            $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ( ! $this->upload->do_upload('image')){
                 $data['message'] = $this->upload->display_errors();
-                $image_filename='';
+                $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
-                $this->form_validation->alt=$post_alt;            
+                $this->form_validation->alt=$post_alt;
+                $data['altdefault'] = $this->form_validation->alt;
+                // keep original default image
+                $project = $this->Project_model->get_by_id($post_idproject)->row();
+                $this->form_validation->img=$project->imgrightbottom;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
                 $image_filename = $image_data['file_name'];
                 $project=array('imgrightbottom' => $image_filename, 'altrightbottom' => $post_alt);
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
-                /*
-                $config['image_library']='gd2';
-                $config['source_image']='./imgs/'.$image_filename;
-                $config['create_thumb']=TRUE;
-                $config['maintain_ratio']=TRUE;
-                $config['width']='223';
-                $config['height']='131';
-                $this->load->library('image_lib',$config);
-                // $this->image_lib->resize();
-                if ( ! $this->image_lib->resize())
-                {
-                    echo $this->image_lib->display_errors();
-                    echo "???";
-                }
-                */
-                $data['message'] = '<div class="success">Image Updated!</div>';
+                $data['message'] = ('<div class="success">Image Updated!</div>');
                 $project = $this->Project_model->get_by_id($idproject)->row();
                 $this->form_validation->idproject=$project->idproject;
-                $this->form_validation->alt=$project->altrightbottom; 
+                $this->form_validation->img=$project->imgrightbottom;
+                $this->form_validation->alt=$project->altrightbottom;
+                $imgdefault=$this->form_validation->img;
+                if(strlen(trim($imgdefault))==0){
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                }else{
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
+                }
+                $data['imgdefault'] = $imgdefault;
+                $data['altdefault'] = $this->form_validation->alt;
             }            
             // load view
             $this->load->view('head',$data);
             $this->load->view('header');
             $this->load->view('imgupload', $data);
-            $this->load->view('foot',$data);        
+            $this->load->view('footer',$data);
+            $this->load->view('foot',$data); 
         }    
     
 }
