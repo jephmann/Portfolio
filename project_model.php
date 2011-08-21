@@ -1,6 +1,5 @@
 <?php
     class Project_model extends CI_Model {
-        // remove this function if unnecessary
         function __construct() {
             parent::__construct();
         }
@@ -15,7 +14,7 @@
             return $this->db->count_all($this->tbl_project);
         }    
         // paginate project records
-        function get_paged_list($limit = 10, $offset = 0){
+        function get_paged_list($limit = 5, $offset = 0){
             $idprofile = $this->session->userdata('idprofile');
             $this->db->where('idprofile', $idprofile);
             $this->db->order_by('idproject','desc');
