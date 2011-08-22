@@ -46,7 +46,7 @@
             // set validation properties
             $this->form_validation->set_rules('title','Project Title','required');
             $this->form_validation->set_rules('description','Project Description','required');
-            $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+            $this->form_validation->set_error_delimiters('<span class="error">', '</span>');
             // run validation
             if ($this->form_validation->run() == FALSE){            
                 // set view data and load view
@@ -213,7 +213,7 @@
             $data['whichimage'] = $whichimage;
             $data['width'] = $w;
             $data['height'] = $h;
-            $data['message'] = ('Select an Image');
+            $data['message'] = ('');
             $data['action'] = site_url('project/updateimageleft');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -238,7 +238,7 @@
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
             $data['jsstuff']=('');
-            $post_image = $this->input->post('imqge');
+            $post_image = $this->input->post('image');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
             $config['upload_path'] = ('./imgs/');
@@ -247,7 +247,7 @@
             $config['max_width'] = $w;
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
-            if ( ! $this->upload->do_upload('image')){
+            if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -265,8 +265,14 @@
                 $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
-                $image_filename = $image_data['file_name'];
-                $project=array('imgleft' => $image_filename, 'altleft' => $post_alt);
+                if(isset($_POST['keep'])){
+                    // change the text but not the image
+                    $project=array('altleft' => $post_alt);
+                }else{
+                    // change both the text and the image
+                    $image_filename = $image_data['file_name'];
+                    $project=array('imgleft' => $image_filename, 'altleft' => $post_alt);
+                }
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
                 $data['message'] = ('<div class="success">Image Updated!</div>');
@@ -313,7 +319,7 @@
             $data['whichimage'] = $whichimage;
             $data['width'] = $w;
             $data['height'] = $h;
-            $data['message'] = ('Select an Image');
+            $data['message'] = ('');
             $data['action'] = site_url('project/updateimagerighttop');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -338,7 +344,7 @@
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
             $data['jsstuff']=('');
-            $post_image = $this->input->post('imqge');
+            $post_image = $this->input->post('image');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
             $config['upload_path'] = ('./imgs/');
@@ -347,7 +353,7 @@
             $config['max_width'] = $w;
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
-            if ( ! $this->upload->do_upload('image')){
+            if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -365,8 +371,14 @@
                 $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
-                $image_filename = $image_data['file_name'];
-                $project=array('imgrighttop' => $image_filename, 'altrighttop' => $post_alt);
+                if(isset($_POST['keep'])){
+                    // change the text but not the image
+                    $project=array('altrighttop' => $post_alt);
+                }else{
+                    // change both the text and the image
+                    $image_filename = $image_data['file_name'];
+                    $project=array('imgrighttop' => $image_filename, 'altrighttop' => $post_alt);
+                }
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
                 $data['message'] = ('<div class="success">Image Updated!</div>');
@@ -413,7 +425,7 @@
             $data['whichimage'] = $whichimage;
             $data['width'] = $w;
             $data['height'] = $h;
-            $data['message'] = ('Select an Image');
+            $data['message'] = ('');
             $data['action'] = site_url('project/updateimagerightbottom');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -438,7 +450,7 @@
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
             $data['jsstuff']=('');
-            $post_image = $this->input->post('imqge');
+            $post_image = $this->input->post('image');
             $post_alt = $this->input->post('alt');
             $post_idproject = $this->input->post('idproject');
             $config['upload_path'] = ('./imgs/');
@@ -447,7 +459,7 @@
             $config['max_width'] = $w;
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
-            if ( ! $this->upload->do_upload('image')){
+            if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -465,8 +477,14 @@
                 $data['imgdefault'] = $imgdefault;
             }else{
                 $image_data = $this->upload->data();
-                $image_filename = $image_data['file_name'];
-                $project=array('imgrightbottom' => $image_filename, 'altrightbottom' => $post_alt);
+                if(isset($_POST['keep'])){
+                    // change the text but not the image
+                    $project=array('altrightbottom' => $post_alt);
+                }else{
+                    // change both the text and the image
+                    $image_filename = $image_data['file_name'];
+                    $project=array('imgrightbottom' => $image_filename, 'altrightbottom' => $post_alt);
+                }
                 $idproject=$post_idproject;
                 $this->Project_model->update($idproject,$project);
                 $data['message'] = ('<div class="success">Image Updated!</div>');
