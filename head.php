@@ -2,10 +2,12 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Portfolio Management: <?php echo $title; ?></title>
-        <link href="<?=base_url();?>css/portfolio.css" media="screen" rel="stylesheet" type="text/css" />
-        <link href="<?=base_url();?>css/links.css" media="screen" rel="stylesheet" type="text/css" />
+        <title>Portfolio Management: <?=$title; ?></title>
+        <link media="screen" rel="stylesheet" type="text/css" href="<?=base_url(); ?>css/reset.css" />
+        <link media="screen" rel="stylesheet" type="text/css" href="<?=base_url(); ?>css/common.css" />
+        <link media="screen" rel="stylesheet" type="text/css" href="<?=base_url(); ?>css/header.css" />
         <?=$morecss ?>
+        <?=$jsstuff ?>
     </head>
     <body>
         <div class="page">
