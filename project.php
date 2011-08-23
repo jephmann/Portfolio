@@ -11,6 +11,9 @@
         // The profile controller is "borrowing" what would have been the project index function.
         
         function add(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $this->session->set_userdata('headermessage','');
             // prefill form values with blanks to avoid error messages
             $this->form_validation->idproject='';
@@ -30,8 +33,16 @@
             $this->load->view('projectform',$data);
             $this->load->view('footer',$data);
             $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         function addProject(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $idprofile = $this->session->userdata('idprofile');
             // retrieve posted values
             $post_idproject=$this->input->post('idproject');
@@ -74,11 +85,20 @@
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');                
             }
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         
         function view($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             // set common properties
-            $data['morecss']='<link href="'.base_url().'css/projectread.css" media="screen" rel="stylesheet" type="text/css" />';
+            $data['morecss']='<link href="'.base_url().'css/projectread.css" media="screen" rel="stylesheet" type="text/css" />
+                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
             $data['jsstuff']=('');
             $data['title'] = 'Project Details';
             $data['link_back'] = anchor('profile/index/', 'HOME',array('class'=>'back'));
@@ -109,10 +129,18 @@
             $this->load->view('header');
             $this->load->view('projectread',$data);
             $this->load->view('footer',$data);
-            $this->load->view('foot',$data);    
+            $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         
         function update($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $this->session->set_userdata('headermessage','');
             // retrieve current data
             $project = $this->Project_model->get_by_id($idproject)->row();
@@ -138,8 +166,16 @@
             $this->load->view('projectform', $data);
             $this->load->view('footer',$data);
             $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         function updateProject(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $idprofile = $this->session->userdata('idprofile');
             // retrieve posted values
             $post_idproject=$this->input->post('idproject');
@@ -183,15 +219,31 @@
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');
             }
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         
         function delete($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             // delete project; redirect home
             $this->Project_model->delete($idproject);
             redirect('profile/index/','refresh');
-        }        
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
         
         function imageleftUpdate($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=471;
             $h=276;
             // prefill form values with current data before updating
@@ -214,6 +266,7 @@
             $data['width'] = $w;
             $data['height'] = $h;
             $data['message'] = ('');
+            $data['msgclass'] = ('');
             $data['action'] = site_url('project/updateimageleft');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -223,8 +276,16 @@
             $this->load->view('imgupload');
             $this->load->view('footer');
             $this->load->view('foot');
-        }    
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
         function updateImageleft(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=471;
             $h=276;
             $imgdefault=('');
@@ -248,6 +309,7 @@
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
+                $data['msgclass'] = ('phperror');
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -264,6 +326,7 @@
                 }
                 $data['imgdefault'] = $imgdefault;
             }else{
+                $data['msgclass'] = ('success');
                 $image_data = $this->upload->data();
                 if(isset($_POST['keep'])){
                     // change the text but not the image
@@ -295,9 +358,17 @@
             $this->load->view('imgupload');
             $this->load->view('footer');
             $this->load->view('foot');
-        }           
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
 
         function imagerighttopUpdate($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=223;
             $h=131;
             // prefill form values with current data before updating
@@ -320,6 +391,7 @@
             $data['width'] = $w;
             $data['height'] = $h;
             $data['message'] = ('');
+            $data['msgclass'] = ('');
             $data['action'] = site_url('project/updateimagerighttop');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -329,8 +401,16 @@
             $this->load->view('imgupload');
             $this->load->view('footer');
             $this->load->view('foot');
-        }    
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
         function updateImagerighttop(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=223;
             $h=131;
             $imgdefault=('');
@@ -354,6 +434,7 @@
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
+                $data['msgclass'] = ('phperror');
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -370,7 +451,7 @@
                 }
                 $data['imgdefault'] = $imgdefault;
             }else{
-                $image_data = $this->upload->data();
+                $data['msgclass'] = ('success');
                 if(isset($_POST['keep'])){
                     // change the text but not the image
                     $project=array('altrighttop' => $post_alt);
@@ -400,10 +481,18 @@
             $this->load->view('header');
             $this->load->view('imgupload');
             $this->load->view('footer');
-            $this->load->view('foot'); 
-        }           
+            $this->load->view('foot');
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
 
         function imagerightbottomUpdate($idproject){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=223;
             $h=131;
             // prefill form values with current data before updating
@@ -426,6 +515,7 @@
             $data['width'] = $w;
             $data['height'] = $h;
             $data['message'] = ('');
+            $data['msgclass'] = ('');
             $data['action'] = site_url('project/updateimagerightbottom');
             $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
             $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -435,8 +525,16 @@
             $this->load->view('imgupload');
             $this->load->view('footer');
             $this->load->view('foot');
-        }    
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
         function updateImagerightbottom(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $w=223;
             $h=131;
             $imgdefault=('');
@@ -460,6 +558,7 @@
             $config['max_height'] = $h;
             $this->load->library('upload', $config);
             if ((! $this->upload->do_upload('image')) && (!isset($_POST['keep']))){
+                $data['msgclass'] = ('phperror');
                 $data['message'] = $this->upload->display_errors();
                 $image_filename=('');
                 $this->form_validation->idproject=$post_idproject;
@@ -470,12 +569,13 @@
                 $this->form_validation->img=$project->imgrightbottom;
                 $imgdefault=$this->form_validation->img;
                 if(strlen(trim($imgdefault))==0){
-                    $imgdefault=str_replace('index.php/','',site_url('imgs/1_big.jpg'));
+                    $imgdefault=str_replace('index.php/','',site_url('imgs/2_big.jpg'));
                 }else{
                     $imgdefault=str_replace('index.php/','',site_url('imgs/').'/'.$imgdefault);
                 }
                 $data['imgdefault'] = $imgdefault;
             }else{
+                $data['msgclass'] = ('success');
                 $image_data = $this->upload->data();
                 if(isset($_POST['keep'])){
                     // change the text but not the image
@@ -506,8 +606,13 @@
             $this->load->view('header');
             $this->load->view('imgupload', $data);
             $this->load->view('footer',$data);
-            $this->load->view('foot',$data); 
-        }    
+            $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
     
 }
 
