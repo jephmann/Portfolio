@@ -112,6 +112,9 @@
         }
 
         function profileAdd(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $this->session->set_userdata('headermessage','');
             // prefill form values with blanks to avoid error messages
             $this->form_validation->namefirst=('');
@@ -131,8 +134,16 @@
             $this->load->view('profileform',$data);
             $this->load->view('footer',$data);
             $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         function addProfile(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $username = $this->session->userdata('username');
             // posted values
             $post_namefirst=$this->input->post('namefirst');
@@ -192,9 +203,17 @@
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');
             }
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
 
         function profileUpdate(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $this->session->set_userdata('headermessage','');
             $idprofile=$this->session->userdata('idprofile');
             // retrieve current data
@@ -222,9 +241,17 @@
             $this->load->view('header',$data);
             $this->load->view('profileform', $data);
             $this->load->view('footer',$data);
-            $this->load->view('foot',$data); 
+            $this->load->view('foot',$data);
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
         function updateProfile(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $username = $this->session->userdata('username');
             $idprofile=$this->session->userdata('idprofile');
             // posted values
@@ -286,9 +313,17 @@
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');
             }
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
         }
 
-        function resumeUpdate(){            
+        function resumeUpdate(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                            
             // set view data and load view
             $data['title'] = 'Update Resume';
             $data['message'] = 'Add a new resume or replace the one you have';
@@ -302,8 +337,16 @@
             $this->load->view('resume', $data);
             $this->load->view('footer',$data);
             $this->load->view('foot',$data);
-        }    
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
+            }
+        }
         function updateResume(){
+            if($this->session->userdata('logged_in')) {
+                $session_data = $this->session->userdata('logged_in'); 
+                
             $fileresume = $this->input->post('fileresume');
             $config['upload_path'] = './docs/';
             $config['allowed_types'] = 'doc|docx|rtf|pdf|txt';
@@ -335,6 +378,11 @@
                 $headermessage='<span class="success">Resume Updated!</span>';
                 $this->session->set_userdata('headermessage',$headermessage);
                 redirect('profile/index/','refresh');
+            }
+            
+            } else {
+                //If no session, redirect to login page
+                redirect('login', 'refresh');
             }
         }
         function logout(){
