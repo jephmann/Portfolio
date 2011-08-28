@@ -1,6 +1,9 @@
 <?php
     if ( ! defined('BASEPATH')) exit('No direct script access allowed');
     class Profile extends CI_Controller {
+
+	// num of records per page
+        private $limit = 5;
         public function __construct() {
             parent::__construct();
             $this->load->library(array('table','form_validation'));
@@ -8,7 +11,6 @@
             $this->load->model('Profile_model','',TRUE);
             $this->load->model('Project_model','',TRUE); 
         }
-        private $limit = 5;
         function index($offset = 0){
             if($this->session->userdata('logged_in')) {
                 $session_data = $this->session->userdata('logged_in'); 
@@ -58,6 +60,7 @@
                 $this->load->view('header');
 
                     // BRING ON THE PROJECT LIST!
+                    $tbl_project='project';
                     // offset
                     $uri_segment = 3;
                     $offset = $this->uri->segment($uri_segment);
@@ -65,9 +68,12 @@
                     $projects = $this->Project_model->get_paged_list($this->limit, $offset)->result();
                     // generate pagination
                     $this->load->library('pagination');
-                    $config['base_url'] = site_url('profile/index/');
-                    $config['total_rows'] = $this->Project_model->count_all();
-                    $config['per_page'] = $this->limit;
+                    $base_url = (site_url('profile/index/'));
+                    $total_rows = ($this->Project_model->count_all_results($tbl_project,$idprofile));
+                    $per_page = ($this->limit);
+                    $config['base_url'] = $base_url;
+                    $config['total_rows'] = $total_rows;
+                    $config['per_page'] = $per_page;
                     $config['uri_segment'] = $uri_segment;
                     $this->pagination->initialize($config);
                     $data['pagination'] = $this->pagination->create_links();
@@ -79,8 +85,7 @@
                     $n=0;
                     foreach ($projects as $project){
                         $n=$n+1;
-                        $this->table->add_row(++$i,
-                            $project->title,
+                        $this->table->add_row(++$i, $project->title,
                             anchor('project/imageleftupdate/'.$project->idproject,'left',array('class'=>'update')).' '.
                             anchor('project/imagerighttopupdate/'.$project->idproject,'right-top',array('class'=>'update')).' '.
                             anchor('project/imagerightbottomupdate/'.$project->idproject,'right-bottom',array('class'=>'update')),
@@ -90,13 +95,13 @@
                         );
                     }            
                     if($n == null || $n == 0){                
-                        $data['noprojects']='<h3 style="text-align: center;">You have no Projects in the System.<br/>Would you like to add one?</h3>';
-                        $data['table']='';                
+                        $data['noprojects']=('<h3 style="text-align: center;">You have no Projects in the System.<br/>Would you like to add one?</h3>');
+                        $data['table']=('');                
                     }else{
-                        $data['noprojects']='';
+                        $data['noprojects']=('');
                         $data['table'] = $this->table->generate();
                     }
-                    $data['title']='Your Projects';
+                    $data['title']=('Your Projects');
                     // load view
                     $this->load->view('projectlist',$data);
                     // END PROJECT LIST
@@ -113,9 +118,9 @@
 
         function profileAdd(){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
                 
-            $this->session->set_userdata('headermessage','');
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
             // prefill form values with blanks to avoid error messages
             $this->form_validation->namefirst=('');
             $this->form_validation->namelast=('');
@@ -214,7 +219,7 @@
             if($this->session->userdata('logged_in')) {
                 $session_data = $this->session->userdata('logged_in'); 
                 
-            $this->session->set_userdata('headermessage','');
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
             $idprofile=$this->session->userdata('idprofile');
             // retrieve current data
             $profile = $this->Profile_model->get_by_id($idprofile)->row();
@@ -308,9 +313,11 @@
                 $this->session->set_userdata('urllinkedin',$db_urllinkedin);
                 $this->session->set_userdata('contactemail',$db_contactemail);
                 $this->session->set_userdata('contactmessage',$db_contactmessage);
+                
                 // set header message on home page and redirect home
                 $headermessage='<span class="success">Profile Updated!</span>';
                 $this->session->set_userdata('headermessage',$headermessage);
+                
                 redirect('profile/index/','refresh');
             }
             
@@ -322,21 +329,21 @@
 
         function resumeUpdate(){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
-                            
-            // set view data and load view
-            $data['title'] = 'Update Resume';
-            $data['message'] = 'Add a new resume or replace the one you have';
-            $data['action'] = site_url('profile/updateresume');
-            $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-            $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
-                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
-            $data['jsstuff']=('');
-            $this->load->view('head',$data);
-            $this->load->view('header');
-            $this->load->view('resume', $data);
-            $this->load->view('footer',$data);
-            $this->load->view('foot',$data);
+                $session_data = $this->session->userdata('logged_in');
+                
+                $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
+                // set view data and load view
+                $data['title'] = 'Update Resume';
+                $data['message'] = 'Add a new resume or replace the one you have';
+                $data['action'] = site_url('profile/updateresume');
+                $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
+                $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                $data['jsstuff']=('');
+                $this->load->view('head',$data);
+                $this->load->view('header');
+                $this->load->view('resume', $data);
+                $this->load->view('footer',$data);
+                $this->load->view('foot',$data);
             
             } else {
                 //If no session, redirect to login page
@@ -347,38 +354,37 @@
             if($this->session->userdata('logged_in')) {
                 $session_data = $this->session->userdata('logged_in'); 
                 
-            $fileresume = $this->input->post('fileresume');
-            $config['upload_path'] = './docs/';
-            $config['allowed_types'] = 'doc|docx|rtf|pdf|txt';
-            $config['overwrite'] = TRUE;
-            $config['max_size'] = '100000';
-            $this->load->library('upload', $config);
-            if ( ! $this->upload->do_upload('fileresume')){
-                $data['title'] = 'Update Resume';
-                $data['action'] = site_url('profile/updateresume');
-                $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
-                $data['message'] = $this->upload->display_errors();
-                $resume_filename='';
-                $data['morecss']='<link href="'.base_url().'css/update.css" media="screen" rel="stylesheet" type="text/css" />
-                    <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
-                $data['jsstuff']=('');
-                $this->load->view('head',$data);
-                $this->load->view('header');
-                $this->load->view('resume', $data);
-                $this->load->view('footer',$data);
-                $this->load->view('foot',$data);        
-            }else{
-                $resume_data = $this->upload->data();
-                $fileresume = $resume_data['file_name'];
-                $idprofile = $this->session->userdata('idprofile');
-                $profile=array('fileresume' => $fileresume);
-                $this->Profile_model->update($idprofile,$profile);
-                $this->session->set_userdata('fileresume',$fileresume);
-                // set header message on home page and redirect home
-                $headermessage='<span class="success">Resume Updated!</span>';
-                $this->session->set_userdata('headermessage',$headermessage);
-                redirect('profile/index/','refresh');
-            }
+                $fileresume = $this->input->post('fileresume');
+                $config['upload_path'] = './docs/';
+                $config['allowed_types'] = 'doc|docx|rtf|pdf|txt';
+                $config['overwrite'] = TRUE;
+                $config['max_size'] = '100000';
+                $this->load->library('upload', $config);
+                if ( ! $this->upload->do_upload('fileresume')){
+                    $data['title'] = 'Update Resume';
+                    $data['action'] = site_url('profile/updateresume');
+                    $data['link_back'] = anchor('profile/index/','HOME',array('class'=>'back'));
+                    $data['message'] = $this->upload->display_errors();
+                    $resume_filename='';
+                    $data['morecss']='<link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
+                    $data['jsstuff']=('');
+                    $this->load->view('head',$data);
+                    $this->load->view('header');
+                    $this->load->view('resume', $data);
+                    $this->load->view('footer',$data);
+                    $this->load->view('foot',$data);        
+                }else{
+                    $resume_data = $this->upload->data();
+                    $fileresume = $resume_data['file_name'];
+                    $idprofile = $this->session->userdata('idprofile');
+                    $profile=array('fileresume' => $fileresume);
+                    $this->Profile_model->update($idprofile,$profile);
+                    $this->session->set_userdata('fileresume',$fileresume);
+                    // set header message on home page and redirect home
+                    $headermessage='<span class="success">Resume Updated!</span>';
+                    $this->session->set_userdata('headermessage',$headermessage);
+                    redirect('profile/index/','refresh');
+                }
             
             } else {
                 //If no session, redirect to login page
