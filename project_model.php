@@ -6,12 +6,18 @@
 
         // table name
         private $tbl_project = 'project';
+	
+	function list_all($idprofile){
+            $this->db->where('idprofile', $idprofile);
+		$this->db->order_by('idprofile','asc');
+		return $this->db->get($tbl_project);
+	}
         
         // count project records
-        function count_all() {
-            $idprofile = $this->session->userdata('idprofile');
+        function count_all_results($tbl_project, $idprofile) {
             $this->db->where('idprofile', $idprofile);
-            return $this->db->count_all($this->tbl_project);
+            $this->db->from($tbl_project);
+            return $this->db->count_all_results();
         }    
         // paginate project records
         function get_paged_list($limit = 5, $offset = 0){
