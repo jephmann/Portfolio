@@ -12,9 +12,9 @@
         
         function add(){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
                 
-            $this->session->set_userdata('headermessage','');
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
             // prefill form values with blanks to avoid error messages
             $this->form_validation->idproject='';
             $this->form_validation->description='';
@@ -94,8 +94,9 @@
         
         function view($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
                 
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
             // set common properties
             $data['morecss']='<link href="'.base_url().'css/projectread.css" media="screen" rel="stylesheet" type="text/css" />
                     <link href="'.base_url().'css/form.css" media="screen" rel="stylesheet" type="text/css" />';
@@ -139,9 +140,9 @@
         
         function update($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
                 
-            $this->session->set_userdata('headermessage','');
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
             // retrieve current data
             $project = $this->Project_model->get_by_id($idproject)->row();
             $db_idproject=$project->idproject;
@@ -228,12 +229,14 @@
         
         function delete($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
                 
-            // delete project; redirect home
-            $this->Project_model->delete($idproject);
-            redirect('profile/index/','refresh');
-            
+                $this->session->set_userdata('headermessage','<span class="success">Welcome!</span'); 
+
+                // delete project; redirect home
+                $this->Project_model->delete($idproject);
+                redirect('profile/index/','refresh');
+
             } else {
                 //If no session, redirect to login page
                 redirect('login', 'refresh');
@@ -242,7 +245,9 @@
         
         function imageleftUpdate($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
+                
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span'); 
                 
             $w=471;
             $h=276;
@@ -367,7 +372,9 @@
 
         function imagerighttopUpdate($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
+                
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
                 
             $w=223;
             $h=131;
@@ -452,6 +459,7 @@
                 $data['imgdefault'] = $imgdefault;
             }else{
                 $data['msgclass'] = ('success');
+                $image_data = $this->upload->data();
                 if(isset($_POST['keep'])){
                     // change the text but not the image
                     $project=array('altrighttop' => $post_alt);
@@ -491,7 +499,9 @@
 
         function imagerightbottomUpdate($idproject){
             if($this->session->userdata('logged_in')) {
-                $session_data = $this->session->userdata('logged_in'); 
+                $session_data = $this->session->userdata('logged_in');
+                
+            $this->session->set_userdata('headermessage','<span class="success">Welcome!</span');
                 
             $w=223;
             $h=131;
