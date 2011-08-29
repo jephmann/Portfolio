@@ -1,10 +1,20 @@
-
-        <div class="content">
-            <h1><?php echo $title; ?></h1>
-            <div class="paging"><?php echo $pagination; ?></div>
-            <div class="data"><?php echo $table; ?></div>
-            <?php echo $noprojects; ?>
-            <br />
-            <?php echo anchor('project/add/','Add New Project',array('class'=>'add')); ?>
-        </div>
+ <div class="projects">
+     <div class="top">
+         <div class="topleft">
+             <h1><?=$title; ?></h1>
+         </div>
+         <div class="topright">
+             <p class="linkback"><?=anchor('project/add/','Add New Project',array('class'=>'add')); ?></p>
+         </div>
+     </div>
+     <div class="clear"></div>
+     <div class="paging">
+         <?=$pagination; ?>
+     </div>
+     <div class="clear"></div>
+     <div class="data">
+         <?=$table; ?>
+     </div>
+     <?=$noprojects; ?>
+ </div>
         
