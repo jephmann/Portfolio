@@ -1,6 +1,6 @@
 <?php
     // detect browser for mobile
-    include('config/db.php');    
+    include('../portfolio/config/db.php');    
 
     $filepath = dirname(__FILE__);
     $path_parts = pathinfo($filepath);
@@ -11,10 +11,9 @@
     /*
      * Yes I want the username part of the filepath;
      * it's either that or we config a textfile for each portfolio.
-     * Do I really want basename and/or filename for the username?
+     * Do I really want $basename and/or $filename for the $username?
      * What is the difference between them?
      */
-    // $username = ('PMS');    // change to a different source
     $username = ($basename);
     
     // PROFILE
@@ -36,14 +35,14 @@
     else
     {
         // PROFILE DEFAULTS
-        $namelast = ('Candidate');
-        $namefirst = ('Default');
+        $namelast = ($username);
+        $namefirst = ('Username');
         $namefull = ($namefirst.'&nbsp;'.$namelast);
         $contactmessage = ('A sentence or two on the Contact Me form.');
         $contactemail = ('donotreply@iit.edu');
         $urllinkedin = ('http://www.linkedin.com/');
         $fileresume = ('');
-        $idprofile=0;
+        $idprofile=null;
     }        
     // PROFILE COVERAGE
     if($namefirst==''){
@@ -62,7 +61,7 @@
     if($contactemail==''){
         $contactme='';
     }
-    $linkedin='<a target="_blank" href="'.$urllinkedin.'"><img src="images/LinkedIn_Logo16px.png"/></a>';
+    $linkedin='<a target="_blank" href="'.$urllinkedin.'"><img src="../portfolio/images/LinkedIn_Logo16px.png"/></a>';
     if($urllinkedin==''){
         $linkedin='';
     }
@@ -74,10 +73,11 @@
     // PROJECT
     readProjects($host, $un, $pw, $db, $idprofile);
     function readProjects($host,$un,$pw,$db, $idprofile){
+        global $projects;
+    if ($idprofile != null) {
         $connection=mysqli_connect($host,$un,$pw,$db) or die ('Unable to connect!');
         $query=('SELECT * FROM project WHERE project.idprofile = '.$idprofile.' ORDER BY project.idproject DESC');
         $result=mysqli_query($connection,$query) or die ("Error in query: $query. ".mysqli_error());
-        global $projects;
         $screen=0;       
         if (mysqli_num_rows($result) > 0) {
             while($row = mysqli_fetch_array($result)) {
@@ -100,7 +100,7 @@
                 }
                 $imgleft=trim($row['imgleft']);
                 if($imgleft=='' || $imgleft==null || strlen($imgleft)==0){
-                    $imgleft='images/1_big.jpg';                    
+                    $imgleft='../portfolio/images/1_big.jpg';                    
                 }else{
                     $imgleft='cms/imgs/'.$imgleft;                    
                 }
@@ -108,7 +108,7 @@
                 if($altleft==''){$altleft='Main Project Image';}
                 $imgrighttop=$row['imgrighttop'];
                 if($imgrighttop=='' || $imgrighttop==null || strlen($imgrighttop)==0){
-                    $imgrighttop='images/1a_small.jpg';                    
+                    $imgrighttop='../portfolio/images/1a_small.jpg';                    
                 }else{
                     $imgrighttop='cms/imgs/'.$imgrighttop;                    
                 }
@@ -116,7 +116,7 @@
                 if($altrighttop==''){$altrighttop='Project Image, Right-Top';}
                 $imgrightbottom=$row['imgrightbottom'];
                 if($imgrightbottom=='' || $imgrightbottom==null || strlen($imgrightbottom)==0){
-                    $imgrightbottom='images/1b_small.jpg';                   
+                    $imgrightbottom='../portfolio/images/1b_small.jpg';                   
                 }else{
                     $imgrightbottom='cms/imgs/'.$imgrightbottom;                    
                 }
@@ -127,14 +127,14 @@
                 $projects.='<div class="box">
                     <div class="top">
                         <div class="left">
-                            <img width="471" height="276"src="'.$imgleft.'" alt="'.$altleft.'" title="'.$altleft.'">
+                            <img src="'.$imgleft.'" alt="'.$altleft.'" title="'.$altleft.'">
                         </div>
                         <div class="right">
                             <div class="top">
-                                <img width="223" height="131" src="'.$imgrighttop.'" alt="'.$altrighttop.'" title="'.$altrighttop.'">
+                                <img src="'.$imgrighttop.'" alt="'.$altrighttop.'" title="'.$altrighttop.'">
                             </div>
                             <div class="bottom">
-                                <img width="223" height="131" src="'.$imgrightbottom.'" alt="'.$altrightbottom.'" title="'.$altrightbottom.'">
+                                <img src="'.$imgrightbottom.'" alt="'.$altrightbottom.'" title="'.$altrightbottom.'">
                             </div>
                         </div>
                     </div>
@@ -146,6 +146,7 @@
                 </div>';
             }
         }
+    }
             else
             {
                 // PROJECT DEFAULTS
@@ -153,14 +154,14 @@
                 $projects='<div class="box">
                                 <div class="top">
                                     <div class="left">
-                                        <img src="images/1_big.jpg" alt="Main Project Image">
+                                        <img src="../portfolio/images/1_big.jpg" alt="Main Project Image">
                                     </div>
                                     <div class="right">
                                         <div class="top">
-                                            <img src="images/1a_small.jpg" alt="Project Image, Right Top">
+                                            <img src="../portfolio/images/1a_small.jpg" alt="Project Image, Right Top">
                                         </div>
                                         <div class="bottom">
-                                            <img src="images/1b_small.jpg" alt="Project Image, Right Bottom">
+                                            <img src="../portfolio/images/1b_small.jpg" alt="Project Image, Right Bottom">
                                         </div>
                                     </div>
                                 </div>
@@ -182,9 +183,9 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <title><?=$namefull ?> Portfolio</title>
-        <link rel="stylesheet" media="screen" href="style.css">
+        <link rel="stylesheet" media="screen" href="../portfolio/style.css">
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-        <script src="js/extrajs.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../portfolio/js/extrajs.js" type="text/javascript" charset="utf-8"></script>
     </head>
     <body>
         <div id="contactback">
@@ -192,7 +193,7 @@
                 <a href="#" class="exit"></a>
                 <h2>CONTACT ME</h2>
                 <p><?=$contactmessage ?></p>
-                <form action="./contact.php?nf=<?=$namefirst ?>&nl=<?=$namelast ?>&em=<?=$contactemail ?>" method="post" id="contactform">
+                <form action="../portfolio/contact.php?nf=<?=$namefirst ?>&nl=<?=$namelast ?>&em=<?=$contactemail ?>&un=<?=$username ?>" method="post" id="contactform">
                     <div class="line">
                         <div class="input_caption">Name</div>
                         <input class="input" type="text" name="name">
