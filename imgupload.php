@@ -14,7 +14,7 @@
                 <label name="lblimgdefault" id="lblimage">
                     Current Image
                     <br />Maximum: <?=$width ?>x<?=$height ?>
-                    <span class="phperror"><?=$message; ?></span>
+                    <span class="<?=$msgclass ?>"><?=$message; ?></span>
                 </label>
                 <photo>
                 <img src="<?=$imgdefault ?>" alt="<?=$altdefault ?>" title="<?=$altdefault ?>" width="400px"/>
